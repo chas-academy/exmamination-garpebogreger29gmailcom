@@ -2,64 +2,72 @@ const descInput = document.getElementById("desc");
 const amountInput = document.getElementById("amount");
 const incomeBtn = document.getElementById("incomeBtn");
 const expenseBtn = document.getElementById("expenseBtn");
-const incomeUl = document.getElementById("incomeList");
-const expenseUl = document.getElementById("expenseList");
-const transactionUl = document.getElementById("transactionList");
-const balanceElement = document.getElementById("balance");
 
-let transactions = [];
+const transactions = [];
 
 function updatePage(transaction) {
-  const formattedText = `${transaction.description} - ${transaction.amount} kr (${transaction.type === "income" ? "Inkomst" : "Utgift"})`;
-
-  const li = document.createElement("li");
-  li.innerText = formattedText;
+  const transactionLi = document.getElementById("transactionList");
+  const transactionLiItem = document.createElement("li");
+  transactionLiItem.innerText = transaction.description + ": " + transaction.amount + " kr";
+  transactionLi.appendChild(transactionLiItem);
 
   if (transaction.type === "income") {
-    if (incomeUl) incomeUl.appendChild(li);
-  } else if (transaction.type === "expense") {
-    if (expenseUl) expenseUl.appendChild(li);
-  }
-
-  if (transactionUl) {
-    const transactionLi = document.createElement("li");
-    transactionLi.innerText = `${transaction.description}: ${transaction.amount} kr`;
-    transactionUl.appendChild(transactionLi);
+    const incomeList = document.getElementById("incomeList");
+    const incomeItem = document.createElement("li");
+    incomeItem.innerText = transaction.description + " - " + transaction.amount + " kr (Inkomst)";
+    incomeList.appendChild(incomeItem);
+  } else {
+    const expenseList = document.getElementById("expenseList");
+    const expenseItem = document.createElement("li");
+    expenseItem.innerText = transaction.description + " - " + transaction.amount + " kr (Utgift)";
+    expenseList.appendChild(expenseItem);
   }
 
   updateBalance();
 }
 
 function updateBalance() {
-  const income = transactions
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
+  const balanceElement = document.getElementById("balance");
+  let total = 0;
 
-  const expense = transactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const total = income - expense;
-
-  if (balanceElement) {
-    balanceElement.textContent = total;
+  for (let i = 0; i < transactions.length; i++) {
+    const t = transactions[i];
+    if (t.type === "income") {
+      total = total + t.amount;
+    } else {
+      total = total - t.amount;
+    }
   }
+
+  balanceElement.textContent = total;
 }
 
-function addTransaction(type) {
-  const description = descInput?.value.trim();
-  const amount = parseInt(amountInput?.value);
+incomeBtn.addEventListener("click", function () {
+  const description = descInput.value;
+  const amount = +amountInput.value;
 
-  if (!description || isNaN(amount)) return;
+  if (description !== "" && amount !== 0) {
+    const transaction = {
+      description: description,
+      amount: amount,
+      type: "income"
+    };
+    transactions.push(transaction);
+    updatePage(transaction);
+  }
+});
 
-  const transaction = { description, amount, type };
-  transactions.push(transaction);
-  updatePage(transaction);
-}
+expenseBtn.addEventListener("click", function () {
+  const description = descInput.value;
+  const amount = +amountInput.value;
 
-if (incomeBtn) {
-  incomeBtn.addEventListener("click", () => addTransaction("income"));
-}
-if (expenseBtn) {
-  expenseBtn.addEventListener("click", () => addTransaction("expense"));
-}
+  if (description !== "" && amount !== 0) {
+    const transaction = {
+      description: description,
+      amount: amount,
+      type: "expense"
+    };
+    transactions.push(transaction);
+    updatePage(transaction);
+  }
+});
