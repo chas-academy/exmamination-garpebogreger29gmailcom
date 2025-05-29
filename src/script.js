@@ -1,76 +1,63 @@
-
-const descriptionInput = document.getElementById("desc");
+const descInput = document.getElementById("desc");
 const amountInput = document.getElementById("amount");
-const incomeButton = document.getElementById("incomeBtn");
-const expenseButton = document.getElementById("expenseBtn");
-const incomeLi = document.getElementById("incomeList");
-const expenseLi = document.getElementById("expenseList");
-const transactionLi = document.getElementById("transactionList");
-const balanceValue = document.getElementById("balance");
+const incomeBtn = document.getElementById("incomeBtn");
+const expenseBtn = document.getElementById("expenseBtn");
+const incomeUl = document.getElementById("incomeList");
+const expenseUl = document.getElementById("expenseList");
+const transactionUl = document.getElementById("transactionList");
+const balanceElement = document.getElementById("balance");
 
-const incomes = [];
-const expenses = [];
-
-incomeButton.addEventListener("click", addIncome);
-expenseButton.addEventListener("click", addExpense);
-
-function addIncome() {
-    const desc = descriptionInput.value;
-    const amount = Number(amountInput.value);
-
-    if (desc !== "" && amount > 0) {
-        const transaction = { description: desc, amount: amount, type: "income"};
-        incomes.push(transaction);
-        updatePage(transaction);
-    }
-
-    descriptionInput.value = "";
-    amountInput.value = "";
-}
-
-
-function addExpense() {
-    const desc = descriptionInput.value;
-    const amount = Number(amountInput.value);
-
-    if (desc !== "" && amount > 0) {
-        const transaction = { description: desc, amount: -amount, type: "expense"};
-        expenses.push(transaction);
-        updatePage(transaction);
-    }
-
-    descriptionInput.value = "";
-    amountInput.value = "";
-}
+let transactions = [];
 
 function updatePage(transaction) {
-    const li = document.createElement("li");
-    li.innerText = `${transaction.description}: ${transaction.amount} kr`;
+  const li = document.createElement("li");
+  li.innerText = `${transaction.description} - ${transaction.amount} kr (${transaction.type === "income" ? "Inkomst" : "Utgift"})`;
 
-    if (transaction.type === "income") {
-        incomeLi.appendChild(li);
-    } else {
-        expenseLi.appendChild(li);
-    }
+  if (transaction.type === "income" && incomeUl) {
+    incomeUl.appendChild(li);
+  } else if (expenseUl) {
+    expenseUl.appendChild(li);
+  }
 
-    const transactionLiItem = document.createElement("li");
-    transactionLiItem.innerText = `${transaction.description}: ${transaction.amount} kr`;
-    transactionLi.appendChild(transactionLiItem);
+  if (transactionUl) {
+    const transactionLi = document.createElement("li");
+    transactionLi.innerText = `${transaction.description}: ${transaction.amount} kr`;
+    transactionUl.appendChild(transactionLi);
+  }
 
-    updateBalance();
+  updateBalance();
 }
 
 function updateBalance() {
-    let totalIncome = 0;
-    for (let income of incomes) {
-        totalIncome += income.amount;
-    }
+  const income = transactions
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
 
-    let totalExpense = 0;
-    for (let expense of expenses) {
-        totalExpense += expense.amount;
-    }
-      let balance = totalIncome + totalExpense;
+  const expense = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
 
-      balanceValue.innerText = balance;
+  const total = income - expense;
+
+  if (balanceElement) {
+    balanceElement.textContent = total;
+  }
+}
+
+function addTransaction(type) {
+  const description = descInput?.value.trim();
+  const amount = parseInt(amountInput?.value);
+
+  if (!description || isNaN(amount)) return;
+
+  const transaction = { description, amount, type };
+  transactions.push(transaction);
+  updatePage(transaction);
+}
+
+if (incomeBtn) {
+  incomeBtn.addEventListener("click", () => addTransaction("income"));
+}
+if (expenseBtn) {
+  expenseBtn.addEventListener("click", () => addTransaction("expense"));
 }
