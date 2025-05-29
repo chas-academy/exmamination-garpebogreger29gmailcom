@@ -10,13 +10,15 @@ const balanceElement = document.getElementById("balance");
 let transactions = [];
 
 function updatePage(transaction) {
-  const li = document.createElement("li");
-  li.innerText = `${transaction.description} - ${transaction.amount} kr (${transaction.type === "income" ? "Inkomst" : "Utgift"})`;
+  const formattedText = `${transaction.description} - ${transaction.amount} kr (${transaction.type === "income" ? "Inkomst" : "Utgift"})`;
 
-  if (transaction.type === "income" && incomeUl) {
-    incomeUl.appendChild(li);
-  } else if (expenseUl) {
-    expenseUl.appendChild(li);
+  const li = document.createElement("li");
+  li.innerText = formattedText;
+
+  if (transaction.type === "income") {
+    if (incomeUl) incomeUl.appendChild(li);
+  } else if (transaction.type === "expense") {
+    if (expenseUl) expenseUl.appendChild(li);
   }
 
   if (transactionUl) {
