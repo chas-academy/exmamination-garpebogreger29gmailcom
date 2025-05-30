@@ -1,5 +1,5 @@
 
-const descriptionInput = document.getElementById("desc");
+const descInput = document.getElementById("desc");
 const amountInput = document.getElementById("amount");
 const incomeButton = document.getElementById("incomeBtn");
 const expenseButton = document.getElementById("expenseBtn");
@@ -15,7 +15,7 @@ incomeButton.addEventListener("click", addIncome);
 expenseButton.addEventListener("click", addExpense);
 
 function addIncome() {
-    const desc = descriptionInput.value;
+    const desc = descInput.value;
     const amount = Number(amountInput.value);
 
     if (desc !== "" && amount > 0) {
@@ -24,40 +24,43 @@ function addIncome() {
         updatePage(transaction);
     }
 
-    descriptionInput.value = "";
+    descInput.value = "";
     amountInput.value = "";
 }
 
 
 function addExpense() {
-    const desc = descriptionInput.value;
+    const desc = descInput.value;
     const amount = Number(amountInput.value);
 
     if (desc !== "" && amount > 0) {
-        const transaction = { description: desc, amount: -amount, type: "expense"};
+        const transaction = { description: desc, amount: amount, type: "expense"};
         expenses.push(transaction);
         updatePage(transaction);
     }
 
-    descriptionInput.value = "";
+    descInput.value = "";
     amountInput.value = "";
 }
 
 function updatePage(transaction) {
-    const li = document.createElement("li");
-    li.innerText = `${transaction.description}: ${transaction.amount} kr`;
+  const li = document.createElement("li");
+  const label = transaction.type === "income" ? "Inkomst" : "Utgift";
+  li.innerText = `${transaction.description} - ${transaction.amount} kr (${label})`;
 
-    if (transaction.type === "income") {
-        incomeLi.appendChild(li);
-    } else {
-        expenseLi.appendChild(li);
-    }
+  if (transaction.type === "income") {
+    incomeLi.appendChild(li);
+  } else {
+    expenseLi.appendChild(li);
+  }
 
-    const transactionLiItem = document.createElement("li");
-    transactionLiItem.innerText = `${transaction.description}: ${transaction.amount} kr`;
-    transactionLi.appendChild(transactionLiItem);
+  if (transactionLi) {
+    const trLi = document.createElement("li");
+    trLi.innerText = li.innerText;
+    transactionLi.appendChild(trLi);
+  }
 
-    updateBalance();
+  updateBalance();
 }
 
 function updateBalance() {
@@ -70,7 +73,7 @@ function updateBalance() {
     for (let expense of expenses) {
         totalExpense += expense.amount;
     }
-      let balance = totalIncome + totalExpense;
+      let balance = totalIncome - totalExpense;
 
       balanceValue.innerText = balance;
 }
