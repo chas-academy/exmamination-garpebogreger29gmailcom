@@ -3,9 +3,9 @@ const descInput = document.getElementById("desc");
 const amountInput = document.getElementById("amount");
 const incomeButton = document.getElementById("incomeBtn");
 const expenseButton = document.getElementById("expenseBtn");
-const incomeLi = document.getElementById("incomeList");
-const expenseLi = document.getElementById("expenseList");
-const transactionLi = document.getElementById("transactionList");
+const incomeList = document.getElementById("incomeList");
+const expenseList = document.getElementById("expenseList");
+const transactionList = document.getElementById("transactionList");
 const balanceValue = document.getElementById("balance");
 
 const incomes = [];
@@ -49,15 +49,15 @@ function updatePage(transaction) {
   li.innerText = `${transaction.description} - ${transaction.amount} kr (${label})`;
 
   if (transaction.type === "income") {
-    incomeLi.appendChild(li);
+    incomeList.appendChild(li);
   } else {
-    expenseLi.appendChild(li);
+    expenseList.appendChild(li);
   }
 
-  if (transactionLi) {
+  if (transactionList) {
     const trLi = document.createElement("li");
     trLi.innerText = li.innerText;
-    transactionLi.appendChild(trLi);
+    transactionList.appendChild(trLi);
   }
 
   updateBalance();
