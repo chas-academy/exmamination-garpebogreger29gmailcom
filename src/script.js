@@ -1,49 +1,47 @@
+const transactions = [];
 
-const descInput = document.getElementById("desc");
-const amountInput = document.getElementById("amount");
-const incomeButton = document.getElementById("incomeBtn");
-const expenseButton = document.getElementById("expenseBtn");
-const incomeList = document.getElementById("incomeList");
-const expenseList = document.getElementById("expenseList");
-const transactionList = document.getElementById("transactionList");
-const balanceValue = document.getElementById("balance");
-
-const incomes = [];
-const expenses = [];
-
-incomeButton.addEventListener("click", addIncome);
-expenseButton.addEventListener("click", addExpense);
-
-function addIncome() {
-    const desc = descInput.value;
-    const amount = Number(amountInput.value);
-
-    if (desc !== "" && amount > 0) {
-        const transaction = { description: desc, amount: amount, type: "income"};
-        incomes.push(transaction);
-        updatePage(transaction);
-    }
-
-    descInput.value = "";
-    amountInput.value = "";
+function getElements() {
+  return {
+    descInput: document.getElementById("desc"),
+    amountInput: document.getElementById("amount"),
+    incomeButton: document.getElementById("incomeBtn"),
+    expenseButton: document.getElementById("expenseBtn"),
+    incomeList: document.getElementById("incomeList"),
+    expenseList: document.getElementById("expenseList"),
+    balanceValue: document.getElementById("balance"),
+    transactionLi: document.getElementById("transactionList") // optional element
+  };
 }
 
+function addIncome() {
+  const { descInput, amountInput } = getElements();
+  const desc = descInput.value;
+  const amount = Number(amountInput.value);
+
+  if (desc !== "" && amount > 0) {
+    const transaction = { description: desc, amount: amount, type: "income" };
+    transactions.push(transaction);
+    updatePage(transaction);
+    updateBalance();
+  }
+}
 
 function addExpense() {
-    const desc = descInput.value;
-    const amount = Number(amountInput.value);
+  const { descInput, amountInput } = getElements();
+  const desc = descInput.value;
+  const amount = Number(amountInput.value);
 
-    if (desc !== "" && amount > 0) {
-        const transaction = { description: desc, amount: amount, type: "expense"};
-        expenses.push(transaction);
-        updatePage(transaction);
-    }
-
-    descInput.value = "";
-    amountInput.value = "";
+  if (desc !== "" && amount > 0) {
+    const transaction = { description: desc, amount: amount, type: "expense" };
+    transactions.push(transaction);
+    updatePage(transaction);
+    updateBalance();
+  }
 }
 
 function updatePage(transaction) {
+  const { incomeList, expenseList, transactionLi } = getElements();
+
   const li = document.createElement("li");
   const label = transaction.type === "income" ? "Inkomst" : "Utgift";
   li.innerText = `${transaction.description} - ${transaction.amount} kr (${label})`;
@@ -54,26 +52,33 @@ function updatePage(transaction) {
     expenseList.appendChild(li);
   }
 
-  if (transactionList) {
+  if (transactionLi) {
     const trLi = document.createElement("li");
     trLi.innerText = li.innerText;
-    transactionList.appendChild(trLi);
+    transactionLi.appendChild(trLi);
   }
-
-  updateBalance();
 }
 
 function updateBalance() {
-    let totalIncome = 0;
-    for (let income of incomes) {
-        totalIncome += income.amount;
-    }
+  const { balanceValue } = getElements();
 
-    let totalExpense = 0;
-    for (let expense of expenses) {
-        totalExpense += expense.amount;
-    }
-      let balance = totalIncome - totalExpense;
+  let totalIncome = 0;
+  let totalExpense = 0;
 
-      balanceValue.innerText = balance;
+  for (let transaction of transactions) {
+    if (transaction.type === "income") {
+      totalIncome += transaction.amount;
+    } else {
+      totalExpense += transaction.amount;
+    }
+  }
+
+  balanceValue.innerText = (totalIncome - totalExpense).toString();
+}
+
+// Attach event listeners after DOM is available
+const { incomeButton, expenseButton } = getElements();
+if (incomeButton && expenseButton) {
+  incomeButton.addEventListener("click", addIncome);
+  expenseButton.addEventListener("click", addExpense);
 }
