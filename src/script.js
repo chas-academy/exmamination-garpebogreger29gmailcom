@@ -1,55 +1,65 @@
-const descInput = document.getElementById("desc");
-const amountInput = document.getElementById("amount");
-const incomeBtn = document.getElementById("incomeBtn");
-const expenseBtn = document.getElementById("expenseBtn");
+let balance = 0;
 
-const transactions = [];
+function updateBalance() {
+  const balanceElement = document.getElementById("balance");
+  if (balanceElement) {
+    balanceElement.textContent = balance;
+  }
+}
 
-function updatePage(transaction) {
-  const transactionLi = document.getElementById("transactionList");
-  const transactionLiItem = document.createElement("li");
-  transactionLiItem.innerText = `${transaction.description}: ${transaction.amount} kr`;
-  transactionLi.appendChild(transactionLiItem);
+function updatePage(transaction, type) {
+  const transactionList = document.getElementById("transactionList");
+  const incomeList = document.getElementById("incomeList");
+  const expenseList = document.getElementById("expenseList");
 
-  if (transaction.type === "income") {
-    const incomeList = document.getElementById("incomeList");
-    const incomeItem = document.createElement("li");
-    incomeItem.innerText = `${transaction.description} - ${transaction.amount} kr (Inkomst)`;
-    incomeList.appendChild(incomeItem);
+  if (!transactionList || !incomeList || !expenseList) return;
+
+  const item = document.createElement("li");
+  item.innerText = `${transaction.description} - ${transaction.amount} kr (${type})`;
+
+  const itemSimple = document.createElement("li");
+  itemSimple.innerText = `${transaction.description}: ${transaction.amount} kr`;
+
+  transactionList.appendChild(item);
+  if (type === "Inkomst") {
+    incomeList.appendChild(itemSimple);
   } else {
-    const expenseList = document.getElementById("expenseList");
-    const expenseItem = document.createElement("li");
-    expenseItem.innerText = `${transaction.description} - ${transaction.amount} kr (Utgift)`;
-    expenseList.appendChild(expenseItem);
+    expenseList.appendChild(itemSimple);
   }
 
   updateBalance();
 }
 
-function updateBalance() {
-  const balance = document.getElementById("balance");
-  const total = transactions.reduce((sum, t) => {
-    return t.type === "income" ? sum + t.amount : sum - t.amount;
-  }, 0);
-  balance.textContent = total;
+function setup() {
+  const descInput = document.getElementById("desc");
+  const amountInput = document.getElementById("amount");
+  const incomeBtn = document.getElementById("incomeBtn");
+  const expenseBtn = document.getElementById("expenseBtn");
+
+  if (!descInput || !amountInput || !incomeBtn || !expenseBtn) return;
+
+  incomeBtn.addEventListener("click", function () {
+    const description = descInput.value;
+    const amount = amountInput.value;
+
+    if (description !== "" && amount !== "") {
+      balance += +amount;
+      updatePage({ description, amount }, "Inkomst");
+    }
+  });
+
+  expenseBtn.addEventListener("click", function () {
+    const description = descInput.value;
+    const amount = amountInput.value;
+
+    if (description !== "" && amount !== "") {
+      balance -= +amount;
+      updatePage({ description, amount }, "Utgift");
+    }
+  });
 }
 
-incomeBtn.addEventListener("click", () => {
-  const description = descInput.value.trim();
-  const amount = parseFloat(amountInput.value);
-  if (description && !isNaN(amount)) {
-    const transaction = { description, amount, type: "income" };
-    transactions.push(transaction);
-    updatePage(transaction);
-  }
-});
-
-expenseBtn.addEventListener("click", () => {
-  const description = descInput.value.trim();
-  const amount = parseFloat(amountInput.value);
-  if (description && !isNaN(amount)) {
-    const transaction = { description, amount, type: "expense" };
-    transactions.push(transaction);
-    updatePage(transaction);
-  }
-});
+// Only auto-run in browser (not in Jest)
+if (typeof window !== "undefined") {
+  window.addEventListener("DOMContentLoaded", setup);
+}
